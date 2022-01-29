@@ -21,6 +21,17 @@ class MovieController extends Controller
     }
 
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function fetch_movie_categories()
+    {
+        return Category::select(['name', 'slug'])->get();
+    }
+
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
