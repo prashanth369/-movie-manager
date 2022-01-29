@@ -15,9 +15,9 @@ class CreateFilesTable extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
             $table->foreignid('movie_id');
             $table->binary('content');
-            $table->timestamp('created_date');
             $table->timestamps();
         });
     }

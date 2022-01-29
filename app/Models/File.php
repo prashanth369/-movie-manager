@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class File extends Model
 {
     use HasFactory;
+    
+    protected $fillable = ['title', 'movie_id', 'content'];
 
-    protected $fillable = ['movie_id', 'content', 'created_date'];
+    public function movies() {
+        return $this->belongsTo('App\Models\Movie', 'id', 'movie_id');
+    }
 
 }
