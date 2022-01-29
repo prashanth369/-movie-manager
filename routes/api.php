@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/movies', [MovieController::class, 'index']);
 
 Route::prefix('/movie')->group(function () {
+    Route::get('/{id}', [MovieController::class, 'show']);
     Route::get('/categories', [MovieController::class, 'fetch_movie_categories']);
     Route::post('/add', [MovieController::class, 'create']);
     Route::put('/{id}', [MovieController::class, 'update']);

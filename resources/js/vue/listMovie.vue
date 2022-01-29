@@ -24,40 +24,40 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "axios"
 
 export default {
   data() {
     return {
       movies: []
-    };
+    }
   },
   mounted() {
     axios.get("http://127.0.0.1:8000/api/movies").then(({ data }) => {
-      this.movies = data;
+      this.movies = data
 
       this.movies.map(movie => {
         if (movie.description.length > 110) {
-          movie.description = `${movie.description.substring(0, 110)}...`;
+          movie.description = `${movie.description.substring(0, 110)}...`
         }
 
         if (movie.imdb_score) {
-          movie.imdb_score = `IMDB scre is: ${movie.imdb_score}`;
+          movie.imdb_score = `IMDB scre is: ${movie.imdb_score}`
         }
 
         if (movie.files && movie.files.length > 0) {
           movie.files.map(file => {
             if (file.url) {
-              file.url = `images/${file.url}`;
+              file.url = `images/${file.url}`
             }
 
-            return file;
+            return file
           });
         }
 
-        return movie;
-      });
-    });
+        return movie
+      })
+    })
   }
-};
+}
 </script>

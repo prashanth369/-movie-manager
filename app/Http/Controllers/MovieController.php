@@ -29,10 +29,6 @@ class MovieController extends Controller
                 );
             });
 
-            $movie_categories = $movie->movie_files->map(function($category) {
-                return $category->name;
-            });
-
             $data[] = array(
                 'id' => $movie->id,
                 'title' => $movie->name,
@@ -40,7 +36,6 @@ class MovieController extends Controller
                 'imdb_score' => $movie->imdb_score,
                 'release_date' => $movie->release_date,
                 'files' => $files,
-                'movie_categories' => $movie_categories
             );
         }
 
@@ -104,6 +99,44 @@ class MovieController extends Controller
 
     }
 
+    /**
+     * Display a specific Resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $movie = Movie::with('movie_files', 'movie_categories')->where('id', $id)->first();
+
+        $files = $movie->movie_files->map(function($file) {
+            return array(
+                'id' => $file->id,
+                'name' => $file->title,
+                'url' => $file->content
+            );
+        });
+
+        $movie_categories = $movie->movie_categories->map(function($category) {
+            return array(
+                'name' => $category->name,
+                'slug' => $category->slug
+            );
+        });
+
+        $data = array(
+            'id' => $movie->id,
+            'name' => $movie->name,
+            'imdb_score' => $movie->imdb_score,
+            'release_date' => $movie->release_date,
+            'description' => $movie->description,
+            'last_updated' => $movie->updated_at,
+            'files' => $files,
+            'categories' => $movie_categories
+        );
+
+        return $data;
+    } 
     /**
      * Update the specified resource in storage.
      *
