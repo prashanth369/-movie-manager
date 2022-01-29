@@ -13,7 +13,7 @@ class Movie extends Model
 
 
     public function movie_files() {
-        return $this->hasOne('App\Models\File', 'movie_id', 'id');
+        return $this->hasMany('App\Models\File', 'movie_id', 'id');
     }
     
     public function movie_categories() {
