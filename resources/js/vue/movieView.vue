@@ -92,7 +92,7 @@ export default {
     };
   },
   mounted() {
-    axios.get("http://127.0.0.1:8000/api/movie/9").then(({ data }) => {
+    axios.get("http://127.0.0.1:8000/api/movies/9").then(({ data }) => {
       this.movie = data;
       if (this.movie.release_date) {
         const date = new Date(this.movie.release_date);

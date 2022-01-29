@@ -3,7 +3,11 @@
     <b-container>
       <b-row class="justify-content-md-center mt-4">
         <b-col col md="8">
-          <b-card header="Add a new Movie Form" header-bg-variant="primary" header-text-variant="white">
+          <b-card
+            header="Add a new Movie Form"
+            header-bg-variant="primary"
+            header-text-variant="white"
+          >
             <b-card-text>
               <b-form @submit="onSubmit">
                 <b-form-group label="Enter the name of the movie">
@@ -30,6 +34,7 @@
                     placeholder="Choose a file or drop it here..."
                     drop-placeholder="Drop file here..."
                   ></b-form-file>
+                  <div v-if="selected_file_names">{{selected_file_names.join(', ')}}</div>
                 </b-form-group>
 
                 <b-form-group
@@ -64,17 +69,44 @@
 import axios from "axios";
 
 export default {
+  props: ["movie_id"],
+
   data() {
     return {
       categories: [],
       files: [],
       movie_name: "",
+      imdb_score: "",
       movie_description: "",
       selected_categories: [],
-      movie_release_date: null
+      movie_release_date: null,
+      selected_file_names: []
     };
   },
   mounted() {
+    if (this.movie_id) {
+      axios
+        .get(`http://127.0.0.1:8000/api/movies/${this.movie_id}`)
+        .then(({ data }) => {
+          const {
+            name,
+            categories,
+            description,
+            files,
+            imdb_score,
+            release_date
+          } = data;
+          if (data && data.status === "success") {
+            this.movie_name = name;
+            this.selected_file_names = files.map(file => file.url);
+            this.movie_description = description;
+            this.selected_categories = categories.map(item => item.slug);
+            this.imdb_score = imdb_score;
+            this.movie_release_date = release_date;
+          }
+        });
+    }
+
     axios.get("http://127.0.0.1:8000/api/movie/categories").then(({ data }) => {
       this.categories = data.map(item => {
         return {
@@ -87,13 +119,27 @@ export default {
   methods: {
     onSubmit(event) {
       event.preventDefault();
-      console.log(
-        this.files.map(f => f.name),
-        this.movie_name,
-        this.movie_description,
-        this.movie_release_date,
-        this.selected_categories
-      );
+      const formdata = new FormData();
+      formdata.append("name", this.movie_name);
+      formdata.append("movie_id", this.movie_id);
+      formdata.append("imdb_score", this.imdb_score || "0.0");
+      formdata.append("release_date", this.movie_release_date);
+      formdata.append("description", this.movie_description);
+      formdata.append("categories", this.selected_categories);
+      formdata.append('existing_files', this.selected_file_names);
+
+      formdata.append("image", this.files[0]);
+      axios
+        .post("http://127.0.0.1:8000/api/movie/add", formdata, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(({ data }) => {
+          if(data.status === 'success') {
+
+          }
+        });
     }
   }
 };
