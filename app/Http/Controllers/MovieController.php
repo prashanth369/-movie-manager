@@ -16,8 +16,35 @@ class MovieController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        return Movie::with('movie_files', 'movie_categories')->get();
+    {   
+        $data = [];
+        $movie_list = Movie::with('movie_files', 'movie_categories')->get();
+
+        foreach($movie_list as $movie) {
+
+            $files = $movie->movie_files->map(function($file) {
+                return array(
+                    'name' => $file->title,
+                    'url' => $file->content
+                );
+            });
+
+            $movie_categories = $movie->movie_files->map(function($category) {
+                return $category->name;
+            });
+
+            $data[] = array(
+                'id' => $movie->id,
+                'title' => $movie->name,
+                'description' => $movie->description,
+                'imdb_score' => $movie->imdb_score,
+                'release_date' => $movie->release_date,
+                'files' => $files,
+                'movie_categories' => $movie_categories
+            );
+        }
+
+        return $data;
     }
 
     /**
@@ -53,8 +80,11 @@ class MovieController extends Controller
 
         //Get the file details
         $file->movie_id = $movie->id;
-        $file->title = $request->image_title;
-        $file->content = $request->image;
+        $file->content = $request->image->getClientOriginalName();
+        $filename = $filename = pathinfo($file->content, PATHINFO_FILENAME);
+        $file->title = $filename;
+
+        $request->image->move('images', $file->content);
         $file->save();
 
         //Get all the categories added to the movie
