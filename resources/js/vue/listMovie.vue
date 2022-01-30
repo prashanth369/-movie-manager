@@ -4,6 +4,7 @@
     <b-container>
       <b-row class="justify-content-md-center mt-4">
         <hr />
+        <p  class="empty-movies-message" v-if="movies.length ===0"> No Movies Available to show yet! Please add movies to view any </p>
         <b-card
           v-for="movie in movies"
           :key="movie.id"
@@ -66,5 +67,8 @@ export default {
 .header-text {
   text-align: center;
   margin-top: 40px;
+}
+.empty-movies-message {
+  text-align: center;
 }
 </style>
