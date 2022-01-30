@@ -6,6 +6,8 @@ Please follow the following commands/instructions to run the application success
     You need to have following installed on your computer before running;
     1. Composer 
     2. PHP
+    3. NodeJS
+    4. NPM
 
 2. ENV setup
     After the 1st step, you need to add the details into the .env file, if you do not have a .env file, then you shopuld create one with the fields mentioned in .env.example file, please make sure that you enter the details correctly for database and it's credentials
@@ -18,3 +20,5 @@ Please follow the following commands/instructions to run the application success
 4. Seed
     Once the tables are created, please followup with the seed command to populate the necessary database talbes with some data, this is important for adding/inserting movies becase it will need to get some data from this seeder data
     `php artisan db:seed` -> this is the seed command
+5. Install all the Node packages using `npm install` -> this command will install all the packanges necessary for the Vue JS 
+6. Please use the port 8000 in the ENV port
