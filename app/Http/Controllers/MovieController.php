@@ -20,6 +20,13 @@ class MovieController extends Controller
         $data = [];
         $movie_list = Movie::with('movie_files', 'movie_categories')->get();
 
+        if(is_null($movie_list)) {
+            return array(
+                'status' => 'failure',
+                'message' => "There aren't any movies to show!"
+            );
+        }
+
         foreach($movie_list as $movie) {
 
             $files = $movie->movie_files->map(function($file) {
@@ -30,6 +37,7 @@ class MovieController extends Controller
             });
 
             $data[] = array(
+                'status' => 'success',
                 'id' => $movie->id,
                 'title' => $movie->name,
                 'description' => $movie->description,
@@ -86,7 +94,8 @@ class MovieController extends Controller
         $file->save();
 
         //Get all the categories added to the movie
-        $movie_category_ids = $category->whereIn('slug', $request->categories)->pluck('id');
+        $categories = explode(',', $request->categories);
+        $movie_category_ids = $category->whereIn('slug', $categories)->pluck('id');
         
         //Save all the movie categories data into the table
         foreach($movie_category_ids as $category_id) {
@@ -98,7 +107,9 @@ class MovieController extends Controller
 
         }
 
-        return $movie;
+        return array(
+            'status' => 'success',
+            'movie' => $movie);
 
     }
 
@@ -188,7 +199,7 @@ class MovieController extends Controller
        
         //Update the File changes of the movie
         if(!is_null($update_movie_files_data)) {
-           return $this->update_file_data($request, $id);
+            $this->update_file_data($request, $id);
         }
 
         $this->update_movie_categories($updated_movie_categories, $id);
@@ -200,7 +211,7 @@ class MovieController extends Controller
     }
 
     public function update_file_data(Request $request, $movie_id) {
-        if($request->image) {
+        if(!is_null($request->image)) {
             $file = new File;
 
             if($request->existing_files) {
@@ -230,7 +241,7 @@ class MovieController extends Controller
 
     public function update_movie_categories($movie_categories, $movie_id) {
         $categories = MovieCategory::where('movie_id', $movie_id)->pluck('category_id')->toArray();
-        $selected_categories = Category::whereIn('slug', $movie_categories)->pluck('id')->toArray();
+        $selected_categories = Category::whereIn('slug', explode(',', $movie_categories))->pluck('id')->toArray();
 
         $category_ids_to_remove = array_values(array_diff($categories, $selected_categories));
         $category_ids_to_add = array_values(array_diff($selected_categories, $categories));
@@ -265,6 +276,8 @@ class MovieController extends Controller
         $movie_categories_to_remove = MovieCategory::where('movie_id', $id)->delete();
         $movie->delete();
 
-        return $movie;;
+        return array(
+            'status' => 'success',
+            'movie' => $movie);
     }
 }

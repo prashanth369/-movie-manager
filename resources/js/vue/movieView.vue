@@ -20,7 +20,7 @@
             </div>
           </b-carousel>
 
-          <div class='mt-4'>
+          <div class="mt-4">
             <b-jumbotron>
               <template #header>
                 {{movie.name}}
@@ -39,7 +39,7 @@
 
               <p>IMDB Rating: {{movie.imdb_score}}/10 • Movie Released Date: {{movie.release_date}}</p>
 
-              <b-button variant="primary" href="#">
+              <b-button variant="primary" :href="'/#/update/' + movie.id">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -54,7 +54,7 @@
                 </svg>
                 update the Movie
               </b-button>
-              <b-button variant="danger" href="#">
+              <b-button variant="danger" v-on:click="onDelete">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -92,7 +92,18 @@ export default {
     };
   },
   mounted() {
-    axios.get("http://127.0.0.1:8000/api/movies/9").then(({ data }) => {
+    const slug = window.location.href.substring(
+      window.location.href.lastIndexOf("/") + 1
+    );
+
+    if (isNaN(slug)) {
+      window.location = "/#/";
+    }
+
+    axios.get(`http://127.0.0.1:8000/api/movies/${slug}`).then(({ data }) => {
+      if (data.status !== "success") {
+        window.location = "/#/";
+      }
       this.movie = data;
       if (this.movie.release_date) {
         const date = new Date(this.movie.release_date);
@@ -117,12 +128,33 @@ export default {
     },
     onSlideEnd(slide) {
       this.sliding = false;
+    },
+    onDelete(event) {
+      event.preventDefault();
+
+      axios
+        .delete(`http://127.0.0.1:8000/api/movie/${this.movie.id}`)
+        .then(({ data }) => {
+          if (data.status === "success") {
+            const errorToaster = {
+              title: "Success",
+              toaster: "b-toaster-bottom-center",
+              variant: "success",
+              noAutoHide: true
+            };
+            this.$root.$bvToast.toast(data.message, errorToaster);
+
+            window.location = "/#/";
+          } else {
+            alert("Movie could not be deleted!");
+          }
+        });
     }
   }
 };
 </script>
 <style scoped>
-    .badge-category {
-        font-size: 1rem;
-    }
+.badge-category {
+  font-size: 1rem;
+}
 </style>
